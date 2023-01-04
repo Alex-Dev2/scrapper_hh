@@ -1,0 +1,41 @@
+# Запросы get post
+import requests
+# Обращаемся выборочно к частям html
+from bs4 import BeautifulSoup
+# генерация и передача левого user agent, полезно у блокирующих ресурсов, либо задать нужный как в доках
+import fake_useragent
+# для sleep
+import time
+# вроде для преобразования ответа в объекты
+import json
+# lxml - парсер
+
+
+# def get_links(text):
+#     ua = "User-Agent"
+#     data = requests.get(
+#         url=f"https://hh.ru/search/vacancy?area=54&area=2&search_field=name&search_field=company_name&search_field=description&text={text}&page=1",
+#         headers={"user-agent": ua}
+#     )
+#     print(data.text)
+#
+# def get_resume(link):
+#     pass
+
+# куда постучимся
+link = "https://hh.ru/"
+# ссылкa, куда шлем, Полученный ответ html пихаем в объект(response) для использования, если не задать формат str (.text) - не получится передать в buitifulsoup
+response = requests.get(link).text
+# Все что получили, передадим парсеру lxml
+# soup.find ищет один блок, findall Вернет список со всем найденными эл
+
+soup = BeautifulSoup(response, 'lxml')
+berem_block_koda = soup.find("div", id="tools")
+# esli lezhit vnutri obrawaemsa k obiekty
+berem_dochernii_elem = berem_block_koda.find("div", id="toog")
+# взять конкретный элемент из всех при findall подставить индекс [4]
+berem_dochernii_elem = berem_block_koda.findall("span")[2].text
+print(berem_block_koda)
+
+if __name__ == '__main__':
+    get_links("python")

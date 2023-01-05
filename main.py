@@ -1,18 +1,21 @@
 """
-Scrapper for hh.ru
--В конце ссылки необходимо писать &customDomain=1 - это позволит получать все ссылки в виде
-hh.ru, а не (наше месторасположение) omsk.hh.ru
+Scrapper for hh.ru - заданы параметры для поиска работы без опыта, либо до года. Так же поиск стажировок и онлайн курсов от IT фирм из РФ, РБ, РК.
+
+Данная версия не очень гибкая. Ссылки забиты жестко со всеми нужными атрибутами, в будущем нужно реализовать подобие фильтра, для выбора разных критериев. Мин. приоритет
+
+Отладка:
+-В конце ссылки необходимо писать &customDomain=1 - hh.ru по дефолту определяет месторасположение, и изменяет возвращаемые ссылки hh.ru на tomsk.hh.ru
+-Доработать - Возможны ошибки если hh.ru изменит теги в структуре сайтов, необходимо, через код стр, получить через теги с атрибутами номер последней стр в выборке.
 
 Выбор стран:
 РФ - area=113
 Белорусь - area=16
 Казахстан - area=40
-https://hh.ru/search/vacancy?area=40&area=113&area=16&search_field=name&search_field=company_name&search_field=description&text=jupiter&no_magic=true&ored_clusters=true&items_on_page=20&enable_snippets=true
 
-ссылка с кучей фильтров без опыта
+ссылка с кучей фильтров без опыта, игнор вакансий где нет опыта, но внутри требуют опыта
 url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&no_magic=true&L_save_area=true&items_on_page=20&page={page}&customDomain=1",
-Ссылка с годом опыта
-https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=between1And3&search_field=name&search_field=company_name&search_field=description&text=python&from=suggest_post&no_magic=true&ored_clusters=true&items_on_page=20&page=0
+Ссылка с кучей фильтров с годом опыта, игнор вакансий где в описании требуют опыт 1,5+ лет
+https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=between1And3&search_field=name&search_field=company_name&search_field=description&text={text}&from=suggest_post&no_magic=true&ored_clusters=true&items_on_page=20&page={page}&customDomain=1
 """
 import requests
 from bs4 import BeautifulSoup

@@ -3,7 +3,7 @@
 Current version - output list of links with sorted positions.
 
 Options:
-- change countries,regions
+- change countries, regions
 - change filter
 
 #In Future

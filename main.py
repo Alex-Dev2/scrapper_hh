@@ -19,9 +19,18 @@ https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%
 """
 import requests
 from bs4 import BeautifulSoup
-import fake_useragent
+# import fake_useragent
 import time
 import json
+
+
+
+from pprint import pprint
+
+import httplib2
+import apiclient
+
+from oauth2client.service_account import ServiceAccountCredentials
 
 # путь к файлу
 CREDENTIALS_FILE = "google_cr.json"
@@ -86,6 +95,39 @@ def get_content(link):
         # "tags": tags,
     }
     return resume
+
+# Авторизуемся и получаем service — экземпляр доступа к API
+credentials = ServiceAccountCredentials.from_json_keyfile_name(
+    CREDENTIALS_FILE,
+    ['https://www.googleapis.com/auth/spreadsheets',
+     'https://www.googleapis.com/auth/drive'])
+httpAuth = credentials.authorize(httplib2.Http())
+service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
+
+# Пример чтения файла
+values = service.spreadsheets().values().get(
+    spreadsheetId=SPREADSHEETS_ID,
+    range='A1:E10',
+    majorDimension='COLUMNS'
+).execute()
+pprint(values)
+
+# Пример записи в файл
+values = service.spreadsheets().values().batchUpdate(
+    spreadsheetId=SPREADSHEETS_ID,
+    body={
+        "valueInputOption": "USER_ENTERED",
+        "data": [
+            {"range": "B3:C4",
+             "majorDimension": "ROWS",
+             "values": [["This is B3", "This is C3"], ["This is B4", "This is C4"]]},
+            {"range": "D5:E6",
+             "majorDimension": "COLUMNS",
+             "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}
+	]
+    }
+).execute()
+
 
 
 if __name__ == '__main__':

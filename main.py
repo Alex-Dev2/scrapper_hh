@@ -9,7 +9,7 @@ Scrapper for hh.ru - заданы параметры для поиска раб�
 
 Выбор стран:
 РФ - area=113
-Белорусь - area=16
+Беларусь - area=16
 Казахстан - area=40
 
 ссылка с кучей фильтров без опыта, игнор вакансий где нет опыта, но внутри требуют опыта
@@ -23,6 +23,10 @@ import fake_useragent
 import time
 import json
 
+# путь к файлу
+CREDENTIALS_FILE = "google_cr.json"
+# ID GOOGLESHEET
+SPREADSHEETS_ID = "1Y_SZ2z8Wn3RdwwnROy4wedEAuB4t1bJOY6Dlv6SRjpA"
 def get_links(text):
     ua = "User-Agent"
     response = requests.get(
@@ -53,8 +57,35 @@ def get_links(text):
         time.sleep(1)
 
 
-def get_resume(link):
-    pass
+def get_content(link):
+    ua = "User-Agent"
+    data = requests.get(
+        url=link,
+        headers={"user-agent": ua}
+    )
+    if data.status_code != 200:
+        return
+    soup = BeautifulSoup(data.content, "lxml")
+    try:
+        name = soup.find(attrs={"data-qa": "vacancy-title"}).text
+    except:
+        name = ""
+    try:
+        salary = soup.find(attrs={"class": "bloko-header-section-2 bloko-header-section-2_lite"}).text.replace("\u2009", "").replace(
+            "\xa0", " ")
+    except:
+        salary = ""
+    # try:
+    #     tags = [tag.text for tag in soup.find(attrs={"class": "bloko-tag-list"}).find_all("span", attrs={
+    #         "class": "bloko-tag__section_text"})]
+    # except:
+    #     tags = []
+    resume = {
+        "name": name,
+        "salary": salary
+        # "tags": tags,
+    }
+    return resume
 
 
 if __name__ == '__main__':
@@ -62,7 +93,9 @@ if __name__ == '__main__':
     for link in get_links("python"):
         i += 1
         print(link)
-    print(i)
+        print(get_content(link))
+        time.sleep(1)
+    print("Число спарсенных ссылок" + str(i))
 
 
 

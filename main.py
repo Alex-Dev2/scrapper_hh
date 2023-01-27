@@ -22,20 +22,12 @@ from bs4 import BeautifulSoup
 # import fake_useragent
 import time
 import json
+import api_google_sheet as api
 
-
-
-from pprint import pprint
-
-import httplib2
-import apiclient
-
-from oauth2client.service_account import ServiceAccountCredentials
-
-# путь к файлу
-CREDENTIALS_FILE = "google_cr.json"
-# ID GOOGLESHEET
-SPREADSHEETS_ID = "1Y_SZ2z8Wn3RdwwnROy4wedEAuB4t1bJOY6Dlv6SRjpA"
+# # путь к файлу
+# CREDENTIALS_FILE = "google_cr.json"
+# # ID GOOGLESHEET
+# SPREADSHEETS_ID = "1Y_SZ2z8Wn3RdwwnROy4wedEAuB4t1bJOY6Dlv6SRjpA"
 def get_links(text):
     ua = "User-Agent"
     response = requests.get(
@@ -96,38 +88,11 @@ def get_content(link):
     }
     return resume
 
-# Авторизуемся и получаем service — экземпляр доступа к API
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    CREDENTIALS_FILE,
-    ['https://www.googleapis.com/auth/spreadsheets',
-     'https://www.googleapis.com/auth/drive'])
-httpAuth = credentials.authorize(httplib2.Http())
-service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
 
-# Пример чтения файла
-values = service.spreadsheets().values().get(
-    spreadsheetId=SPREADSHEETS_ID,
-    range='A1:E10',
-    majorDimension='COLUMNS'
-).execute()
-pprint(values)
-
-# Пример записи в файл
-values = service.spreadsheets().values().batchUpdate(
-    spreadsheetId=SPREADSHEETS_ID,
-    body={
-        "valueInputOption": "USER_ENTERED",
-        "data": [
-            {"range": "B3:C4",
-             "majorDimension": "ROWS",
-             "values": [["This is B3", "This is C3"], ["This is B4", "This is C4"]]},
-            {"range": "D5:E6",
-             "majorDimension": "COLUMNS",
-             "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}
-	]
-    }
-).execute()
-
+#Подключение к sheets, poluchit i zapisat dannie
+connected_to_file = api.connect_to_file()
+# api.get_data_from_sheets(connected_to_file)
+api.push_data_to_sheets(connected_to_file)
 
 
 if __name__ == '__main__':

@@ -31,14 +31,16 @@ def get_data_from_sheets(service):
         majorDimension='COLUMNS'
     ).execute()
     pprint(values)
-def push_data_to_sheets(service):
+
+
+def push_data_to_sheets(service, name, salary, link_vacancy, name_firm, link_firm):
     # Пример записи в файл
     values = service.spreadsheets().values().append(
         spreadsheetId=SPREADSHEET_ID,
         range = "Лист1!A1:A",
         body= {
             "majorDimension": "COLUMNS",
-            "values": [[str(datetime.now())], ["Ссылка"]]
+            "values": [[str(datetime.now())], [name], [salary], [link_vacancy], [name_firm], [link_firm]]
                 # {"range": "Лист1!A5:A",
                 #  "majorDimension": "COLUMNS",
                 #  "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}

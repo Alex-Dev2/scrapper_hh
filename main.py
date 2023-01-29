@@ -13,25 +13,23 @@ Scrapper for hh.ru - заданы параметры для поиска раб�
 Казахстан - area=40
 
 ссылка с кучей фильтров без опыта, игнор вакансий где нет опыта, но внутри требуют опыта
-url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&no_magic=true&L_save_area=true&items_on_page=20&page={page}&customDomain=1",
+url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&no_magic=true&L_save_area=true&items_on_page=20&page={page}&customDomain=1",
 Ссылка с кучей фильтров с годом опыта, игнор вакансий где в описании требуют опыт 1,5+ лет
 https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=between1And3&search_field=name&search_field=company_name&search_field=description&text={text}&from=suggest_post&no_magic=true&ored_clusters=true&items_on_page=20&page={page}&customDomain=1
+
+Проработать фильтр внутри вакансии 2 лет, 2 года, 3 лет, 3 года, 1.5 лет, 1.5 года, 1,5 года, 1,5 лет
 """
 import requests
 from bs4 import BeautifulSoup
-# import fake_useragent
 import time
 import json
 import api_google_sheet as api
 
-# # путь к файлу
-# CREDENTIALS_FILE = "google_cr.json"
-# # ID GOOGLESHEET
-# SPREADSHEETS_ID = "1Y_SZ2z8Wn3RdwwnROy4wedEAuB4t1bJOY6Dlv6SRjpA"
+
 def get_links(text):
     ua = "User-Agent"
     response = requests.get(
-        url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&from=suggest_post&no_magic=true&ored_clusters=true&items_on_page=20&page=0&customDomain=1",
+        url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&text={text}&no_magic=true&ored_clusters=true&items_on_page=20&experience=noExperience&enable_snippets=true&excluded_text=&customDomain=1",
         headers={"user-agent": ua}
     )
     if response.status_code != 200:
@@ -41,12 +39,12 @@ def get_links(text):
     try:
         max_page = int(soup.find("div", attrs={"class": "pager"}).find_all("span", recursive=False)[-1].find("a").find("span").text)
     except:
-        return
+        max_page = 0
     # выборка страниц с вакансиями по запросу, проходим по страницам, возвращаем ссылку
     for page in range(max_page+1):
         try:
             resp = requests.get(
-                url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%B5%D1%82%2C+2+%D0%B3%D0%BE%D0%B4%D0%B0%2C+3+%D0%BB%D0%B5%D1%82%2C+3+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1.5+%D0%BB%D0%B5%D1%82%2C+1.5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%B3%D0%BE%D0%B4%D0%B0%2C+1%2C5+%D0%BB%D0%B5%D1%82&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&no_magic=true&L_save_area=true&items_on_page=20&page={page}&customDomain=1",
+                url=f"https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=&experience=noExperience&search_field=name&search_field=company_name&search_field=description&text={text}&no_magic=true&L_save_area=true&items_on_page=20&page={page}&customDomain=1",
                 headers={"user-agent": ua}
             )
             if resp.status_code == 200:
@@ -70,40 +68,43 @@ def get_content(link):
     try:
         name = soup.find(attrs={"data-qa": "vacancy-title"}).text
     except:
-        name = ""
+        name = "Fail"
     try:
-        salary = soup.find(attrs={"class": "bloko-header-section-2 bloko-header-section-2_lite"}).text.replace("\u2009", "").replace(
-            "\xa0", " ")
+        name_firm = soup.find(attrs={"data-qa": "vacancy-company__details"}).text
     except:
-        salary = ""
-    # try:
-    #     tags = [tag.text for tag in soup.find(attrs={"class": "bloko-tag-list"}).find_all("span", attrs={
-    #         "class": "bloko-tag__section_text"})]
-    # except:
-    #     tags = []
-    resume = {
-        "name": name,
-        "salary": salary
-        # "tags": tags,
-    }
-    return resume
+        name_firm = "Fail"
+    try:
+        salary = soup.find(attrs={"data-qa": "vacancy-salary"}).text.replace("\u2009", "").replace(
+            "\xa0", "")
+    except:
+        salary = "Fail"
+    try:
+        link_vacancy = link
+    except:
+        link_vacancy = "Fail"
+    try:
+        link_firm = "https://hh.ru" + soup.find(attrs={"class": "vacancy-company-details"}).find(attrs={"data-qa": "vacancy-company-name"}).get('href')
+    except:
+        link_firm = "Fail"
 
+    test = soup.find(attrs={"class": "g-user-content"}).get_text()
+    print(name, salary, link_vacancy, name_firm, link_firm, test)
 
-#Подключение к sheets, poluchit i zapisat dannie
-connected_to_file = api.connect_to_file()
-# api.get_data_from_sheets(connected_to_file)
-api.push_data_to_sheets(connected_to_file)
-
+def check_keywords(*args):
+    pass
 
 if __name__ == '__main__':
+    # Подключение к sheets, poluchit i zapisat dannie
+    # connected_to_file = api.connect_to_file()
     i = 0
-    for link in get_links("python"):
+    for link in get_links("Сервисный инженер 1С"):
         i += 1
         print(link)
         print(get_content(link))
         time.sleep(1)
     print("Число спарсенных ссылок" + str(i))
-
+    # api.get_data_from_sheets(connected_to_file) - нужно чтобы в будущем сравнить по ссылке если есть но не записываем
+    # api.push_data_to_sheets(connected_to_file, name, salary, link_vacancy, name_firm, link_firm)
 
 
 

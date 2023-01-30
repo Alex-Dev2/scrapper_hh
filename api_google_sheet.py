@@ -1,15 +1,18 @@
 from pprint import pprint
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
+from configparser import ConfigParser
 
 import httplib2
 import apiclient
 
 
+parser = ConfigParser()
+parser.read("config.ini", encoding="utf-8")
 # Файл ключ, полученный в Google Developer Console
-CREDENTIALS_FILE = 'google_cr.json'
+CREDENTIALS_FILE = parser['google_api']['CREDENTIALS_FILE']
 # ID Google Sheets документа (можно взять из его URL)
-SPREADSHEET_ID = '1Y_SZ2z8Wn3RdwwnROy4wedEAuB4t1bJOY6Dlv6SRjpA'
+SPREADSHEET_ID = parser['google_api']['SPREADSHEET_ID']
 
 
 def connect_to_file():

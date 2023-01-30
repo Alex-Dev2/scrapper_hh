@@ -20,12 +20,19 @@ https://hh.ru/search/vacancy?area=16&area=113&area=40&excluded_text=2+%D0%BB%D0%
 Проработать фильтр внутри вакансии 2 лет, 2 года, 3 лет, 3 года, 1.5 лет, 1.5 года, 1,5 года, 1,5 лет
 """
 import requests
+from configparser import ConfigParser
 from bs4 import BeautifulSoup
 import time
 import json
 import api_google_sheet as api
 
 
+
+def get_keywords_from_config():
+    parser = ConfigParser()
+    parser.read("config.ini", encoding="utf-8")
+    keywords = parser['keywords']['keywords']
+    print(keywords)
 def get_links(text):
     ua = "User-Agent"
     response = requests.get(
@@ -86,26 +93,29 @@ def get_content(link):
         link_firm = "https://hh.ru" + soup.find(attrs={"class": "vacancy-company-details"}).find(attrs={"data-qa": "vacancy-company-name"}).get('href')
     except:
         link_firm = "Fail"
+    try:
+        description_vacancy = soup.find(attrs={"data-qa": "vacancy-description"}).get_text()
+    except:
+        description_vacancy = "Fail"
+    print(name, salary, link_vacancy, name_firm, link_firm, description_vacancy)
+    # Что то сделать с return - выдает в консоль лишний None
+    # return
 
-    test = soup.find(attrs={"class": "g-user-content"}).get_text()
-    print(name, salary, link_vacancy, name_firm, link_firm, test)
-
-def check_keywords(*args):
-    pass
+# def check_keywords(*args):
+#     pass
 
 if __name__ == '__main__':
     # Подключение к sheets, poluchit i zapisat dannie
     # connected_to_file = api.connect_to_file()
     i = 0
-    for link in get_links("Сервисный инженер 1С"):
+    for link in get_links("python"):
         i += 1
         print(link)
-        print(get_content(link))
+        get_content(link)
         time.sleep(1)
     print("Число спарсенных ссылок" + str(i))
     # api.get_data_from_sheets(connected_to_file) - нужно чтобы в будущем сравнить по ссылке если есть но не записываем
     # api.push_data_to_sheets(connected_to_file, name, salary, link_vacancy, name_firm, link_firm)
-
 
 
 
